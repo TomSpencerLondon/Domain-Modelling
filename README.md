@@ -274,7 +274,8 @@ sequenceDiagram
 
 We can add the activation with "activation" or "+" or "-". Here we have also added a note to the Kafka event.
 We can also annotate the sequence diagram with numbers for further clarity and adddrop down menus to link to a services repository,
-domain model or documentation for why the service was created such as an architecture decision record.
+domain model or documentation for why the service was created such as an architecture decision record. These only work on rendered
+pages.
 
 ```mermaid
 ---
@@ -282,6 +283,7 @@ title: User Sign Up Flow
 ---
 
 sequenceDiagram
+    autonumber
     actor Browser
     participant Sign Up Service
     participant User Service
