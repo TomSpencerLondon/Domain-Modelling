@@ -578,7 +578,7 @@ flowchart TD
         MA
     end
     
-    WA--"Publishes messages to\n[Binary over TCP]"--->K
+    WA-."Publishes messages to\n[Binary over TCP]"..->K
     WA--"Makes API calls to\n[HTTPS]"--->TS
     WA--"Makes API calls to\n[HTTPS]"--->RS
     WA--"Makes API calls to\n[HTTPS]"--->SS
