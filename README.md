@@ -595,3 +595,6 @@ flowchart TD
     style listing-service color:#fff,stroke-dasharray: 5 5
     
 ```
+This is a list of arrow types for mermaid diagrams:
+
+![image](https://user-images.githubusercontent.com/27693622/230421778-650b4cf3-06d7-498f-8991-7dbd21842aeb.png)
