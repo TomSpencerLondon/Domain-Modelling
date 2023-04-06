@@ -729,3 +729,291 @@ flowchart
     style listing-service fill:none,stroke:#CCC,stroke-width:2px
     style listing-service color:#fff,stroke-dasharray:5 5
 ```
+
+#### Database Schemas
+
+It can be helpful to draw an ERD to model parts of the Database. On smaller databases
+it is actually very easy to export the ERD from your database but
+on larger databases it may help to sketch the relationships for a small part of the database
+when seeking to understand relationships.
+
+```mermaid
+---
+title: Streamy Entity Relationship Diagram
+---
+
+erDiagram
+    TITLE {
+        int title_id PK
+        int type_id FK
+        string name
+        datetime release_date
+    }
+    
+    TITLE_TYPE {
+        int type_id PK
+        string type
+    }
+    
+    ACTOR {
+        int actor_id PK
+        string name
+        date date_of_birth
+    }
+    
+    TITLE_ACTOR {
+        int title_id PK "FK"
+        int actor_id PK "FK"
+    }
+    
+    GENRE {
+        int genre_id PK
+        string name
+    }
+    
+    TITLE_GENRE {
+        int title_id PK "FK"
+        int genre_id PK "FK"
+    }
+    
+    EPISODE {
+        int episode_id PK
+        int season_id FK
+        string name
+        int season_number
+        int episode_number
+        datetime release_date
+    }
+    
+    SEASON {
+        int season_id PK
+        int title_id FK
+        int season_number
+        date release_year
+    }
+    
+    REVIEW {
+        int review_id PK
+        int title_id FK
+        int episode_id FK
+        int season_id FK
+        string review_by
+        datetime review_date
+        string review_text
+    }
+    
+    TITLE}|..|| TITLE_TYPE: has
+    TITLE ||--o{ TITLE_GENRE: "belongs to"
+    TITLE ||--|{ TITLE_ACTOR: features
+    TITLE ||..|{SEASON: contains
+    
+    TITLE_GENRE}o--|| GENRE: references
+    
+    TITLE_ACTOR}|--|| ACTOR: references
+    
+    EPISODE}|..|| SEASON: contains
+    
+    REVIEW}o..o| TITLE: "made against"
+    REVIEW}o..o| EPISODE: "made against"
+    REVIEW}o..o| SEASON: "made against"
+```
+
+### Designing and refactoring code
+
+#### Visualize Code Flows
+
+```mermaid
+---
+title: POST /users Request Handling
+---
+sequenceDiagram
+    autonumber
+    
+    participant UserController
+    participant CreateUserService
+    participant UserModel
+    participant SendWelcomeEmailService
+    participant Kafka
+    
+    UserController->>+CreateUserService: call
+    CreateUserService->>UserModel:find_users_by_email
+    UserModel-->>CreateUserService: array of Users
+    
+    loop
+        CreateUserService->>CreateUserService:check_active_users
+    end
+    
+    CreateUserService->>UserModel:create_user
+    UserModel-->>CreateUserService: User
+    
+    par
+        CreateUserService->>SendWelcomeEmailService: send_welcome_email
+        SendWelcomeEmailService-->>CreateUserService: boolean
+    end
+    
+    CreateUserService-->>-UserController: User
+```
+
+#### Class Diagram
+
+We can use class diagrams to aid with refactoring. This is the code before refactoring.
+
+```mermaid
+classDiagram
+    class UserController {
+        -CreateUserService_createUserService
+        +UserController(CreateUserService createUserService)
+        +Create(string email, string username) User
+    }
+    
+    class CreateUserService {
+        -UserModel _userModel
+        -SendWelcomeEmailService _sendWelcomeEmailService
+        -Kafka _kafka
+        +CreateUserService(UserModel um, SendWelcomeEmailService es, Kafka k)
+        +Call(string email, string username) User
+        -CheckActiveUsers(List~User~users) bool
+    }
+    
+    class UserModel {
+        +FindUsersByEmail(string email) List~User~
+        +CreateUser(string email, string username) User
+    }
+    
+    class User {
+        +int UserId
+        +string Username
+        +string Email
+    }
+    
+    class SendWelcomeEmailService {
+        +Call(User user) bool
+    }
+    
+    class Kafka {
+        +PublishUserCreatedEvent(User user) bool
+    }
+    
+    UserController..>CreateUserRequest: depends on
+    UserController..>CreateUserService: depends on
+    CreateUserService..> UserModel: depends on
+    UserModel..> User: depends on
+    CreateUserService..>SendWelcomeEmailService: depends on
+    CreateUserService..> Kafka: depends on
+    
+```
+
+We can add a UserRequest object to encapsulate the email and username:
+
+```mermaid
+classDiagram
+    class UserController {
+        -CreateUserService_createUserService
+        +UserController(CreateUserService createUserService)
+        +Create(string email, string username) User
+    }
+    
+    class CreateUserRequest {
+        +string Email
+        +string Username
+        
+        +Validate() bool
+    }
+    
+    class CreateUserService {
+        -UserModel _userModel
+        -SendWelcomeEmailService _sendWelcomeEmailService
+        -Kafka _kafka
+        +CreateUserService(UserModel um, SendWelcomeEmailService es, Kafka k)
+        +Call(CreateUserRequest createUserRequest) User
+        -CheckActiveUsers(List~User~users) bool
+    }
+    
+    class UserModel {
+        +FindUsersByEmail(string email) List~User~
+        +CreateUser(string email, string username) User
+    }
+    
+    class User {
+        +int UserId
+        +string Username
+        +string Email
+    }
+    
+    class SendWelcomeEmailService {
+        +Call(string email, string username) bool
+    }
+    
+    class Kafka {
+        +PublishUserCreatedEvent(User user) bool
+    }
+    
+    UserController..>CreateUserRequest: depends on
+    UserController..>CreateUserService: depends on
+    CreateUserService..> UserModel: depends on
+    UserModel..> User: depends on
+    CreateUserService..>SendWelcomeEmailService: depends on
+    CreateUserService..> Kafka: depends on
+```
+
+We can also create an interface for the UserService:
+
+```mermaid
+classDiagram
+    class UserController {
+        -ICreateUserService_createUserService
+        +UserController(ICreateUserService createUserService)
+        +Create(string email, string username) User
+    }
+    
+    
+    class CreateUserRequest {
+        +string Email
+        +string Username
+        
+        +Validate() bool
+    }
+    
+    class ICreateUserService {
+        <<interface>>
+        +Call(CreateUserRequest createUserRequest) User
+    }
+
+    class CreateUserService {
+        -UserModel _userModel
+        -SendWelcomeEmailService _sendWelcomeEmailService
+        -Kafka _kafka
+        +CreateUserService(UserModel um, SendWelcomeEmailService es, Kafka k)
+        +Call(CreateUserRequest createUserRequest) User
+        -CheckActiveUsers(List~User~users) bool
+    }
+    
+    class UserModel {
+        +FindUsersByEmail(string email) List~User~
+        +CreateUser(string email, string username) User
+    }
+    
+    class User {
+        +int UserId
+        +string Username
+        +string Email
+    }
+    
+    class SendWelcomeEmailService {
+        +Call(string email, string username) bool
+    }
+    
+    class Kafka {
+        +PublishUserCreatedEvent(User user) bool
+    }
+    
+    UserController..>ICreateUserService: depends on
+    UserController..>CreateUserRequest: depends on
+    CreateUserService..|> ICreateUserService: implements
+    UserController..>CreateUserService: depends on
+    CreateUserService..> UserModel: depends on
+    UserModel..> User: depends on
+    CreateUserService..>SendWelcomeEmailService: depends on
+    CreateUserService..> Kafka: depends on
+
+```
