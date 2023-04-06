@@ -509,7 +509,7 @@ for the containers that are in play:
 - A web application that serves web browsers and also hosts an API for the mobile app to retrieve/send data to/from
 - A Redis instance for caching, to prevent repeated API calls to downstream services, such as the title service
 
-We also have a message broker in the form of Kafka, that we send domaain events to when important things happen
+We also have a message broker in the form of Kafka, that we send domain events to when important things happen
 such as when a user views listings or a user watches a title.
 
 ```mermaid
