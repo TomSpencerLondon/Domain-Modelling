@@ -137,3 +137,141 @@ classDiagram
     MovieProgram "1"o--"1..*" Movie: has
 ```
 
+#### Visualize Application and User Flows
+We can use sequence diagrams to describe the flow we are expecting to build to other engineers
+or even nontechnical colleagues, such as product managers. Sequence diagrams can be useful when getting
+approval for buiding brand-new systems. Simply presenting the sequence diagrams along with using the C4
+model can be a very effective way to explain what is proposed.
+
+All sequence diagrams must have actors and participants. An actor represents a human and a participant represents
+a process:
+
+```mermaid
+---
+title: User Sign Up Flow
+---
+
+sequenceDiagram
+    actor Browser
+    participant Sign Up Service
+    participant User Service
+    participant Kafka
+```
+
+The above shows the nodes of the business. 
+
+#### Our first interaction
+We can now start detailing the interactions between the actors and participants.
+
+```mermaid
+---
+title: User Sign Up Flow
+---
+
+sequenceDiagram
+    actor Browser
+    participant Sign Up Service
+    participant User Service
+    participant Kafka
+    
+    Browser->>Sign Up Service: GET /sign_up
+    Sign Up Service-->>Browser: 200 OK (HTML page)
+```
+Messages can be a variety of formats. For now we use '->>' for synchronous calls. For reply
+messages we use -->> which shows a dotted line back to the initiator of the request.
+
+#### Show Branching Logic
+We can also show unhappy paths when users fail validation checks.
+
+```mermaid
+---
+title: User Sign Up Flow
+---
+
+sequenceDiagram
+    actor Browser
+    participant Sign Up Service
+    participant User Service
+    participant Kafka
+    
+    Browser ->> Sign Up Service: GET/sign_up
+    Sign Up Service -->> Browser: 200 OK (HTML page)
+    
+    Browser->>Sign Up Service: POST /sign_up
+    Sign Up Service->>Sign Up Service: Validate input
+    
+    alt invalid input
+        Sign Up Service-->>Browser: Error
+    else valid input
+        Sign Up Service->>User Service: POST /users
+        User Service-->>Sign Up Service: 201 Created(User)
+        Sign Up Service-->>Browser: 301 Redirect(Login page)
+    end
+```
+
+### Display Asynchronous Messages
+We can now add asynchronous messages to the UML diagram:
+
+```mermaid
+---
+title: User Sign Up Flow
+---
+
+sequenceDiagram
+    actor Browser
+    participant Sign Up Service
+    participant User Service
+    participant Kafka
+    
+    Browser ->> Sign Up Service: GET/sign_up
+    Sign Up Service -->> Browser: 200 OK (HTML page)
+    
+    Browser->>Sign Up Service: POST /sign_up
+    Sign Up Service->>Sign Up Service: Validate input
+    
+    alt invalid input
+        Sign Up Service-->>Browser: Error
+    else valid input
+        Sign Up Service->>User Service: POST /users
+        User Service-->>Sign Up Service: 201 Created(User)
+        User Service--)Kafka: User Created Event Published
+        User Service-->>Sign Up Service: 201 Created(User)
+        Sign Up Service-->>Browser: 301 Redirect(Login page)
+    end
+```
+
+### Display Length of Interactions with Activations
+We can now make the interactions even clearer with activations which show a rectangle for the start and
+end of the request:
+```mermaid
+---
+title: User Sign Up Flow
+---
+
+sequenceDiagram
+    actor Browser
+    participant Sign Up Service
+    participant User Service
+    participant Kafka
+    
+    Browser->>Sign Up Service: GET/sign_up
+    activate Sign Up Service
+    Sign Up Service-->>Browser: 200 OK (HTML page)
+    deactivate Sign Up Service
+    
+    Browser->>+Sign Up Service: POST /sign_up
+    Sign Up Service->>Sign Up Service: Validate input
+    
+    alt invalid input
+        Sign Up Service-->>Browser: Error
+    else valid input
+        Sign Up Service->>+User Service: POST /users
+        User Service-->>Sign Up Service: 201 Created(User)
+        User Service--)Kafka: User Created Event Published
+        Note left of Kafka: other services take action based on this event
+        User Service-->>-Sign Up Service: 201 Created(User)
+        Sign Up Service-->>-Browser: 301 Redirect(Login page)
+    end
+```
+
+We can add the activation with "activation" or "+" or "-". Here we have also added a note to the Kafka event.
