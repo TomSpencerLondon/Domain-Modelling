@@ -500,3 +500,12 @@ flowchart TD
     class MB focusSystem
     class MS,BS,MG supportingSystem
 ```
+
+#### Detail the System's Containers
+
+For the Container diagram, the second level of the C4 diagrams, we can talk about further detail
+for the containers that are in play:
+- A mobile application for mobile users
+- A web application that serves web browsers and also hosts an API for the mobile app to retrieve/send data to/from
+- A Redis instance for caching, to prevent repeated API calls to downstream services, such as the title service
+
