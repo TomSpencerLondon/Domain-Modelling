@@ -517,7 +517,8 @@ such as when a user views listings or a user watches a title.
 title: "Listing Service C4 Model: Container Diagram"
 ---
 flowchart TD
-    User["Premium Member
+    User["🧍 
+    Premium Member
     [Person]
     
     A user of the website who has
