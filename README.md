@@ -394,7 +394,8 @@ We can now add style to the nodes:
 title: "Listing Service C4 Model: System Context"
 ---
 flowchart TD
-    User["Premium Member
+    User["🧍 
+    Premium Member
     [Person]
     
     A user of the website who has
@@ -446,13 +447,15 @@ flowchart TD
 title: "Listing Service C4 Model: System Context"
 ---
 flowchart TD
-    Admin["Administrator
+    Admin["🧍 
+    Administrator
     [Person]
 
     Administrator who
     updates MoviePrograms"]
 
-    User["MovieBooker
+    User["🧍‍♀️
+    MovieBooker
     [Person]
     
     Movie Goer views programs 
@@ -599,3 +602,130 @@ flowchart TD
 This is a list of arrow types for mermaid diagrams:
 
 ![image](https://user-images.githubusercontent.com/27693622/230421778-650b4cf3-06d7-498f-8991-7dbd21842aeb.png)
+
+#### Component diagrams
+Often the System Context and the Container diagram are enough in terms of higher level architectural detail.
+However, it can be useful at times to create a component diagram.
+
+```mermaid
+---
+title: "Listing Service C4 Model: Component Diagram"
+---
+
+flowchart
+    classDef container fill:#1168bd,stroke:#0b4884,color:#ffffff
+    classDef externalSystem fill:#666,stroke:#0b4884,color:#ffffff
+    classDef component fill:#855bbf0,stroke:#5d82a8,color:#000000
+    
+    Browser["Browser
+    [Web Browser]
+    
+    Used by a user to browse
+    the website"]
+    
+    MA["Application
+    [Xamarin Application]
+    
+    Allows members to view and review
+    titles from their mobile devices"]
+    
+    R["In-Memory Cache
+    [Redis]
+    
+    Titles and their reviews
+    are cached"]
+    
+    K["Message Broker
+    [Kafka]
+    
+    Important domain events are published to Kafka"]
+    
+    TS["Title Service
+    [Software System]
+    
+    Provides an API to retrieve
+    title information
+    "]
+    
+    RS["Review Service
+    [Software System]
+    
+    Provides an API to retrieve
+    and submit reviews"]
+    
+    SS["Search Service
+    [Software System]
+    
+    Provides an API to search
+    for titles"]
+    
+    TCont["Title Controller
+    [ASP.NET MVC Controller]
+    
+    Allows users to view details
+    about titles"]
+    
+    SCont["Search Controller
+    [ASP.NET MVC Controller]
+    
+    Allows users to search for titles"]
+    
+    RCont["Review Controller
+    [ASP.NET MVC Controller]
+    
+    Allows users to read and
+    write reviews"]
+    
+    TComp["title Component
+    [ASP.NET NAmespace]
+    
+    Provides information on titles,
+    retrieves information from the title service
+    and caches titles"]
+    
+    SComp["Search Component
+    [ASP.NET Namespace]
+    
+    Searches titles using the
+    search service"]
+    
+    RComp["REview Component
+    [ASP.NET Namespace]
+    
+    Provides review information,
+    submits new reviews
+    and publishes domain events"]
+    
+    Browser--"Submits requests to\n[HTTPS]"--->TCont
+    MA--"Submits requests to\n[HTTPS]"--->TCont
+    
+    MA--"Submits requests to\n[HTTPS]"--->SCont
+    Browser--"Submits requests to\n[HTTPS]"--->SCont
+    
+    MA--"Submits requests to\n[HTTPS]"--->RCont
+    Browser--"Submits requests to\n[HTTPS]"--->RCont
+    
+    
+    subgraph listing-service[Listing Service]
+        TCont--->TComp
+        RCont--->TComp
+        RCont--->RComp
+        
+        SCont--->SComp
+    end
+    
+    TComp--->TS
+    TComp--->R
+    
+    RComp--->R
+    RComp--->K
+    RComp--->RS
+    
+    SComp--->SS
+    
+    class MA,R container
+    class SS,RS,TS,K,Browser externalSystem
+    class RComp,SComp,TComp,RCont,SCont,TCont component
+    style listing-service fill:none,stroke:#CCC,stroke-width:2px
+    style listing-service color:#fff,stroke-dasharray:5 5
+```
