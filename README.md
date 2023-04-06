@@ -233,7 +233,6 @@ sequenceDiagram
         Sign Up Service-->>Browser: Error
     else valid input
         Sign Up Service->>User Service: POST /users
-        User Service-->>Sign Up Service: 201 Created(User)
         User Service--)Kafka: User Created Event Published
         User Service-->>Sign Up Service: 201 Created(User)
         Sign Up Service-->>Browser: 301 Redirect(Login page)
@@ -266,7 +265,6 @@ sequenceDiagram
         Sign Up Service-->>Browser: Error
     else valid input
         Sign Up Service->>+User Service: POST /users
-        User Service-->>Sign Up Service: 201 Created(User)
         User Service--)Kafka: User Created Event Published
         Note left of Kafka: other services take action based on this event
         User Service-->>-Sign Up Service: 201 Created(User)
