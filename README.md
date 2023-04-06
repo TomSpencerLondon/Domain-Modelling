@@ -308,3 +308,195 @@ sequenceDiagram
         Sign Up Service-->>-Browser: 301 Redirect(Login page)
     end
 ```
+
+#### Model Your Architecture
+
+We want to do enough design up front to validate our approach but not so much that there's no room for the
+design to evolve over time. The flexibility of Mermaid ensures taht we can iterate over diagrams by changing
+simple definitions. This can reduce the pain of changing diagrams that have taken a long time to create. You can even
+live edit diagrams because it is just a matter of changing syntax.
+
+#### Using the C4 Model
+The C4 diagram has four parts:
+- System Context
+- Container
+- Component
+- Code
+
+For the moment we will focus on the first three parts of the C4 diagram. There are three main elements to the System Context
+diagram:
+- people
+- Your software system (that you are designing)
+- Supporting software systems
+
+We will start by adding Nodes:
+
+```mermaid
+flowchart TD
+    User["Premium Member
+    [Person]
+    A user of the website who has
+    purchased a subscription"]
+```
+
+There are various options for the direction of the flowchart:
+- TB: top-to-bottom
+- TD: top-down
+- BT: bottom-to-top
+- RL: right-to-left
+- LR: left-to-right
+
+```mermaid
+flowchart TD
+    User["Premium Member
+    [Person]
+    
+    A user of the website who has
+    purchased a subscription"]
+    
+    LS["Listings Service
+    [Software System]
+    
+    Serves web pages displaying title
+    listings to the end user"]
+    
+    TS["Title Service
+    [Software System]
+    
+    Provides an API to retrieve
+    title information"]
+    
+    RS["Review Service
+    [Software System]
+    
+    Provides an API to retrieve
+    and submit reviews"]
+    
+    SS["Search Service
+    [Software System]
+    
+    Provides an API to search
+    for titles"]
+    
+    User--"Views titles, searches titles\nand reviews titles using" --> LS
+    
+    LS--"Retrieves title information from"-->TS
+    LS--"Retrieves from and submits reviews to"-->RS
+    LS--"Searches for titles using"-->SS
+```
+
+#### Adding Style
+
+We can now add style to the nodes:
+
+```mermaid
+---
+title: "Listing Service C4 Model: System Context"
+---
+flowchart TD
+    User["Premium Member
+    [Person]
+    
+    A user of the website who has
+    purchased a subscription"]
+    
+    LS["Listings Service
+    [Software System]
+    
+    Serves web pages displaying title
+    listings to the end user"]
+    
+    TS["Title Service
+    [Software System]
+    
+    Provides an API to retrieve
+    title information"]
+    
+    RS["Review Service
+    [Software System]
+    
+    Provides an API to retrieve
+    and submit reviews"]
+    
+    SS["Search Service
+    [Software System]
+    
+    Provides an API to search
+    for titles"]
+    
+    User--"Views titles, searches titles\nand reviews titles using" --> LS
+    
+    LS--"Retrieves title information from"-->TS
+    LS--"Retrieves from and submits reviews to"-->RS
+    LS--"Searches for titles using"-->SS
+    
+    classDef focusSystem fill:#1168bd,stroke:#0b4884,color:#ffffff
+    classDef supportingSystem fill:#666,stroke:#0b4884,color:#ffffff
+    classDef person fill:#08427b,stroke:#052e56,color:#ffffff
+
+    class User person
+    class LS focusSystem
+    class TS,RS,SS supportingSystem
+```
+
+#### MovieBooker System Context
+
+```mermaid
+---
+title: "Listing Service C4 Model: System Context"
+---
+flowchart TD
+    Admin["Administrator
+    [Person]
+
+    Administrator who
+    updates MoviePrograms"]
+
+    User["MovieBooker
+    [Person]
+    
+    Movie Goer views programs 
+    and makes bookings"]
+    
+    MB["Movie Booker
+    [Software System]
+    
+    Serves web pages displaying title
+    listings to the end user"]
+    
+    MS["MovieService
+    [Software System]
+    
+    Provides an API to retrieve
+    title information"]
+    
+    BS["Booking Service
+    [Software System]
+    
+    Provides an API to retrieve
+    and submit bookings"]
+    
+    MG["Movie Goer Service
+    [Software System]
+    
+    Provides information
+    about the current user
+    for titles"]
+    
+    Admin--"Views users and updates programs" --> MB
+    User--"Views titles, searches titles\nand reviews titles using" --> MB
+    
+    MB--"Retrieves title information from"-->MS
+    MB--"Retrieves bookings from"-->BS
+    MB--"Retrieves movie goer info from"-->MG
+    
+    classDef focusSystem fill:#1168bd,stroke:#0b4884,color:#ffffff
+    classDef supportingSystem fill:#666,stroke:#0b4884,color:#ffffff
+    classDef person fill:#08427b,stroke:#052e56,color:#ffffff
+    classDef admin fill:#08427b,stroke:#052e56,color:#ffffff
+
+    class User person
+    class Admin admin
+    class MB focusSystem
+    class MS,BS,MG supportingSystem
+```
