@@ -1,4 +1,8 @@
 #### Mermaid cli
+This is an excellent book on Mermaid:
+https://pragprog.com/titles/apdiag/creating-software-with-modern-diagramming-techniques/
+Ashley Peacock
+
 https://github.com/mermaid-js/mermaid-cli
 ```bash
 npm install -g @mermaid-js/mermaid-cli
